@@ -1,0 +1,42 @@
+name: Check Website Update
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/5 * * * *'
+
+env:
+  LINE_NOTIFY_ACCESS_TOKEN: ${{ secrets.LINE_NOTIFY_ACCESS_TOKEN }}
+  TARGET_URL: ${{ secrets.TARGET_URL }}
+
+jobs:
+  check_update:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+
+    - name: Install dependencies
+      run: |
+        python -m venv venv
+        source venv/bin/activate
+        pip install -r requirements.txt
+
+    - name: Check for updates
+      run: python check_update.py
+
+    - name: Commit changes
+      run: |
+        if [[ -n $(git status -s) ]]; then
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git add previous_hash.txt
+          git commit -m "Update hash"
+          git push
+        fi
