@@ -1,9 +1,7 @@
 import os
 import requests
 from bs4 import BeautifulSoup
-import hashlib
 from dotenv import load_dotenv
-
 
 def send_notification(message):
     url = "https://notify-api.line.me/api/notify"
@@ -25,28 +23,29 @@ def scrape_site(url):
         r = requests.get(url)
         r.raise_for_status()
         soup = BeautifulSoup(r.content, "html.parser")
-        return soup.prettify()
+        for td in soup.find_all('td'):
+            if td.get('colspan') == '8':
+                return td.text
+        return ""
     except requests.exceptions.RequestException as e:
         print(f"Error: Failed to scrape site ({e})")
         return ""
 
 def check_update(url):
-    current_content = scrape_site(url)
-    if current_content == "":
+    current_date = scrape_site(url)
+    if current_date == "":
         return
 
-    current_hash = hashlib.sha256(current_content.encode()).hexdigest()
-
     try:
-        with open("previous_hash.txt", "r") as f:
-            previous_hash = f.read()
+        with open("previous.txt", "r") as f:
+            previous_date = f.read()
     except:
-        previous_hash = ""
+        previous_date = ""
 
-    if current_hash != previous_hash:
-        send_notification("スケジュールが更新されました。")
-        with open("previous_hash.txt", "w") as f:
-            f.write(current_hash)
+    if current_date != previous_date:
+        send_notification('{}'.format(current_date)+'のスケジュールが更新されました。')
+        with open("previous.txt", "w") as f:
+            f.write(current_date)
 
 if __name__ == "__main__":
     load_dotenv()
