@@ -34,7 +34,7 @@ jobs:
         if [[ -n $(git status -s) ]]; then
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
-          git add previous_hash.txt
+          git add previous.txt
           git commit -m "Update hash"
           git push
         fi
