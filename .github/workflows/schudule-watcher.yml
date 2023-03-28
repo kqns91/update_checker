@@ -2,8 +2,8 @@ name: Check Website Update
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '*/5 * * * *'
+#   schedule:
+#     - cron: '*/5 * * * *'
 
 env:
   LINE_NOTIFY_ACCESS_TOKEN: ${{ secrets.LINE_NOTIFY_ACCESS_TOKEN }}
